@@ -27,7 +27,10 @@ async function getBrowser() {
   } else {
     const puppeteer = await import("puppeteer").then((mod) => mod.default);
 
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      headless: false, // <--- Add this line
+      slowMo: 100, // <--- Optional, slows down Puppeteer actions
+    });
     return browser;
   }
 }
