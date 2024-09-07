@@ -36,19 +36,11 @@ async function getBrowser() {
   }
 }
 
-const cg_login_url = "https://www.campusgroups.com/shibboleth/login?idp=cwru";
-const cg_event_url = "https://community.case.edu/web/rsvp_boot?id=2258398";
-const username = process.env.USERNAME;
-const password = process.env.PASSWORD;
-
-export async function GET(request: NextRequest) {
-  console.log("Attempting to auto register...");
+async function autoRegister(cg_login_url: string, cg_event_url: string, username: string, password: string) {
+  console.log("Attempting to auto-register...");
 
   const browser = await getBrowser();
-  console.log("Browser launched successfully.");
-
-  const pages = await browser.pages();
-  const page = pages[0];
+  const page = (await browser.pages())[0];
 
   // Navigate to the login URL
   await page.goto(cg_login_url);
@@ -84,11 +76,31 @@ export async function GET(request: NextRequest) {
   await page.waitForSelector('div.check-icon', { timeout: 20000 });
 
   console.log("Registration successful!");
-
   await browser.close();
-  return new NextResponse(JSON.stringify({ message: "Registration successful!" }), {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+}
+
+
+export async function POST(request: NextRequest) {
+  const cg_login_url = "https://www.campusgroups.com/shibboleth/login?idp=cwru";
+  const { eventLink, username, password } = await request.json();
+
+  if (!eventLink || !username || !password) {
+    return new NextResponse(JSON.stringify({ message: "Missing required fields" }), {
+      headers: { "Content-Type": "application/json" },
+      status: 400,
+    });
+  }
+
+  try {
+    await autoRegister(cg_login_url, eventLink, username, password);
+
+    return new NextResponse(JSON.stringify({ message: "Registration successful!" }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    return new NextResponse(JSON.stringify({ message: `Error: ${error}` }), {
+      headers: { "Content-Type": "application/json" },
+      status: 500,
+    });
+  }
 }
