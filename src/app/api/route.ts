@@ -45,6 +45,8 @@ export async function GET(request: NextRequest) {
   console.log("Attempting to auto register...");
 
   const browser = await getBrowser();
+  console.log("Browser launched successfully.");
+
   const pages = await browser.pages();
   const page = pages[0];
 
