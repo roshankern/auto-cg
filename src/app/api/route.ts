@@ -42,6 +42,8 @@ const username = process.env.USERNAME;
 const password = process.env.PASSWORD;
 
 export async function GET(request: NextRequest) {
+  console.log("Attempting to auto register...");
+
   const browser = await getBrowser();
   const pages = await browser.pages();
   const page = pages[0];
