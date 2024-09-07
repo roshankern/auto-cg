@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { useState } from 'react';
 
@@ -13,15 +13,9 @@ export default function Home() {
       });
 
       if (response.ok) {
-        // Handle the response as needed (e.g., download the PDF)
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(new Blob([blob]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'event.pdf');
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode?.removeChild(link);
+        // Parse the JSON response and log the success message
+        const data = await response.json();
+        console.log(data.message);
       } else {
         console.error('Failed to auto-register');
       }
