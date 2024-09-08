@@ -13,16 +13,20 @@ export default function Home() {
     setLoading(true);
     try {
       const response = await fetch('/api', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          eventLink,
-          username,
-          password,
-        }),
+        method: 'GET', // Use GET method instead of POST
       });
+
+      // const response = await fetch('/api', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     eventLink,
+      //     username,
+      //     password,
+      //   }),
+      // });
 
       if (response.ok) {
         const data = await response.json();

@@ -80,21 +80,23 @@ async function autoRegister(cg_login_url: string, cg_event_url: string, username
 }
 
 
-export async function POST(request: NextRequest) {
+export async function GET() {
   const cg_login_url = "https://www.campusgroups.com/shibboleth/login?idp=cwru";
-  const { eventLink, username, password } = await request.json();
-
-  if (!eventLink || !username || !password) {
-    return new NextResponse(JSON.stringify({ message: "Missing required fields" }), {
-      headers: { "Content-Type": "application/json" },
-      status: 400,
-    });
-  }
+  const eventLink = "https://community.case.edu/web/rsvp_boot?id=2258398";
+  const username = process.env.USERNAME;
+  const password = process.env.PASSWORD;
 
   try {
+    if (!eventLink || !username || !password) {
+      return new NextResponse(JSON.stringify({ message: "Missing required fields" }), {
+        headers: { "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
     await autoRegister(cg_login_url, eventLink, username, password);
 
-    return new NextResponse(JSON.stringify({ message: "Registration successful!" }), {
+    return new NextResponse(JSON.stringify({ message: "Test registration successful!" }), {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
@@ -104,3 +106,28 @@ export async function POST(request: NextRequest) {
     });
   }
 }
+
+// export async function POST(request: NextRequest) {
+//   const cg_login_url = "https://www.campusgroups.com/shibboleth/login?idp=cwru";
+//   const { eventLink, username, password } = await request.json();
+
+//   if (!eventLink || !username || !password) {
+//     return new NextResponse(JSON.stringify({ message: "Missing required fields" }), {
+//       headers: { "Content-Type": "application/json" },
+//       status: 400,
+//     });
+//   }
+
+//   try {
+//     await autoRegister(cg_login_url, eventLink, username, password);
+
+//     return new NextResponse(JSON.stringify({ message: "Registration successful!" }), {
+//       headers: { "Content-Type": "application/json" },
+//     });
+//   } catch (error) {
+//     return new NextResponse(JSON.stringify({ message: `Error: ${error}` }), {
+//       headers: { "Content-Type": "application/json" },
+//       status: 500,
+//     });
+//   }
+// }
