@@ -82,7 +82,7 @@ async function autoRegister(cg_login_url: string, cg_event_url: string, username
 
 export async function GET() {
   const cg_login_url = "https://www.campusgroups.com/shibboleth/login?idp=cwru";
-  const eventLink = "https://community.case.edu/web/rsvp_boot?id=2258398";
+  const eventLink = "https://community.case.edu/yoga/rsvp_boot?id=2258478";
   const username = process.env.USERNAME;
   const password = process.env.PASSWORD;
 

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 export default function Home() {
-  const [eventLink, setEventLink] = useState('https://community.case.edu/web/rsvp_boot?id=2258398');
+  const [eventLink, setEventLink] = useState('https://community.case.edu/yoga/rsvp_boot?id=2258478');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
