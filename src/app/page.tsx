@@ -3,30 +3,38 @@
 import { useState } from 'react';
 
 export default function Home() {
-  const [eventLink, setEventLink] = useState('https://community.case.edu/yoga/rsvp_boot?id=2258478');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const defaultEventLink = 'https://community.case.edu/yoga/rsvp_boot?id=2258478';
 
-  const handleAutoRegister = async () => {
-    console.log('Attempting to auto-register...');
+  const handleAutoRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const eventLink = formData.get('eventLink') as string;
+    const unixTimestamp = formData.get('unixTimestamp') as string;
+    const username = formData.get('username') as string;
+    const password = formData.get('password') as string;
+
+    // encrypt the username and password before api call
+    const encryptedUsername = "testEncryptedUsername";
+    const encryptedPassword = "testEncryptedPassword";
+
+    console.log('Attempting to auto-register...');
+
     try {
       const response = await fetch('/api', {
-        method: 'GET', // Use GET method instead of POST
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventLink,
+          encryptedUsername,
+          encryptedPassword,
+          unixTimestamp,
+        }),
       });
-
-      // const response = await fetch('/api', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     eventLink,
-      //     username,
-      //     password,
-      //   }),
-      // });
 
       if (response.ok) {
         const data = await response.json();
@@ -44,10 +52,7 @@ export default function Home() {
   return (
     <div className="flex h-screen items-center justify-center">
       <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleAutoRegister();
-        }}
+        onSubmit={handleAutoRegister}
         className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-xl"
       >
         <div className="mb-4">
@@ -56,11 +61,25 @@ export default function Home() {
           </label>
           <input
             id="eventLink"
+            name="eventLink"
             type="text"
-            value={eventLink}
-            onChange={(e) => setEventLink(e.target.value)}
+            defaultValue={defaultEventLink}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             placeholder="Enter event link"
+            required
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="unixTimestamp">
+            Unix Timestamp
+          </label>
+          <input
+            id="unixTimestamp"
+            name="unixTimestamp"
+            type="number"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            placeholder="Enter Unix timestamp"
             required
           />
         </div>
@@ -71,9 +90,8 @@ export default function Home() {
           </label>
           <input
             id="username"
+            name="username"
             type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             placeholder="Enter your username"
             required
@@ -86,9 +104,8 @@ export default function Home() {
           </label>
           <input
             id="password"
+            name="password"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
             placeholder="Enter your password"
             required
