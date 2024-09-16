@@ -9,8 +9,6 @@ export async function POST(req: NextRequest) {
         const { eventLink, encryptedUsername, encryptedPassword, unixTimestamp } = body;
         const zeploToken = process.env.ZEPLO_TOKEN;
 
-        console.log('zeploToken:', zeploToken, 'eventLink:', eventLink, 'encryptedUsername:', encryptedUsername, 'encryptedPassword:', encryptedPassword, 'unixTimestamp:', unixTimestamp);
-
         // Send the POST request to the Zeplo API
         const response = await axios({
             method: 'POST',
