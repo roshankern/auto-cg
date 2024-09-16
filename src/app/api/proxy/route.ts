@@ -12,18 +12,12 @@ export async function POST(req: NextRequest) {
         console.log('zeploToken:', zeploToken);
 
         // Send the POST request to the Zeplo API
-        // const response = await axios({
-        //     method: 'POST',
-        //     url: 'https://zeplo.to/postman-echo.com/post',
-        //     params: {
-        //         _token: zeploToken,
-        //     },
-        // });
         const response = await axios({
             method: 'POST',
             url: 'https://zeplo.to/auto-cg.vercel.app/api',
             params: {
                 _token: zeploToken,
+                _delay_until: unixTimestamp,
             },
             data: {
                 eventLink,
