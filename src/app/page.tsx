@@ -24,20 +24,14 @@ export default function Home() {
     console.log('Attempting to auto-register...');
 
     try {
-      const zeploToken = process.env.NEXT_PUBLIC_ZEPLO_TOKEN;
-      const delayUntilTimestamp = parseInt(unixTimestamp);
-
       const response = await axios({
         method: 'POST',
-        url: 'https://zeplo.to/auto-cg.vercel.app/api',
-        params: {
-          _token: zeploToken,
-          _delay: delayUntilTimestamp,
-        },
+        url: '/api/proxy',
         data: {
           eventLink,
           encryptedUsername,
           encryptedPassword,
+          unixTimestamp,
         },
       });
 
@@ -52,6 +46,7 @@ export default function Home() {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="flex h-screen items-center justify-center">
