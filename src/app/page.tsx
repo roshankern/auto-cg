@@ -1,11 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 export default function Home() {
+  const [minDatetime, setMinDatetime] = useState('');
+
+  useEffect(() => {
+    // Get current time, add 5 minutes, and format it as YYYY-MM-DDTHH:MM
+    const now = new Date();
+    now.setMinutes(now.getMinutes());
+    const formatted = now.toLocaleString('sv-SE', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(' ', 'T');
+    setMinDatetime(formatted);
+  }, []);
+
   const [loading, setLoading] = useState(false);
-  const defaultEventLink = 'https://community.case.edu/yoga/rsvp_boot?id=2258478';
+  const defaultEventLink = 'https://community.case.edu/web/rsvp_boot?id=2258484';
 
   const handleAutoRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -13,13 +23,16 @@ export default function Home() {
 
     const formData = new FormData(e.target as HTMLFormElement);
     const eventLink = formData.get('eventLink') as string;
-    const unixTimestamp = formData.get('unixTimestamp') as string;
+    const datetime = formData.get('datetime') as string;
     const username = formData.get('username') as string;
     const password = formData.get('password') as string;
 
     // encrypt the username and password before api call
     const encryptedUsername = "testEncryptedUsername";
     const encryptedPassword = "testEncryptedPassword";
+
+    // Convert the datetime value to a Unix timestamp, subtracting 15 seconds
+    const unixTimestamp = Math.floor(new Date(datetime).getTime() / 1000) - 15;
 
     console.log('Attempting to auto-register...');
 
@@ -47,13 +60,16 @@ export default function Home() {
     }
   };
 
-
   return (
     <div className="flex h-screen items-center justify-center">
       <form
         onSubmit={handleAutoRegister}
         className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-xl"
       >
+        <h1 className="text-2xl font-bold text-gray-700 mb-6 text-center">
+          Auto Register for Campus Groups Event (CWRU)
+        </h1>
+
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="eventLink">
             Event Link
@@ -70,15 +86,15 @@ export default function Home() {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="unixTimestamp">
-            Unix Timestamp
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="datetime">
+            Auto Registration Date + Local Time
           </label>
           <input
-            id="unixTimestamp"
-            name="unixTimestamp"
-            type="number"
+            id="datetime"
+            name="datetime"
+            type="datetime-local"
+            min={minDatetime}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            placeholder="Enter Unix timestamp"
             required
           />
         </div>
@@ -120,6 +136,11 @@ export default function Home() {
             {loading ? 'Registering...' : 'Auto Register'}
           </button>
         </div>
+
+        <p className="mt-4 text-gray-500 text-sm">
+          <strong>Attention</strong>: You should always be cautious when sharing login details. We use SOTA encryption to keep login info secure and never record usernames or passwords. CampusGroups is also the only service (to our knowledge) that does not require Duo authentication for a new login.
+        </p>
+
       </form>
     </div>
   );
