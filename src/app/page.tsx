@@ -36,16 +36,10 @@ export default function Home() {
     const username = formData.get("username") as string;
     const password = formData.get("password") as string;
 
-    console.log("Username:", username);
-    console.log("Password:", password);
-
-    // encrypt the username and password before api call
     const { encryptedUsername, encryptedPassword } = await encryptData(
       username,
       password
     );
-
-    // Convert the datetime value to a Unix timestamp, subtracting 15 seconds
     const unixTimestamp = Math.floor(new Date(datetime).getTime() / 1000) - 15;
 
     console.log("Attempting to auto-register...");

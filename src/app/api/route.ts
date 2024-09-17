@@ -122,8 +122,6 @@ export async function POST(request: NextRequest) {
   try {
     username = decrypt(encryptedUsername, secretKey);
     password = decrypt(encryptedPassword, secretKey);
-    console.log(`Decrypted username: ${username}`);
-    console.log(`Decrypted password: ${password}`);
   } catch (error) {
     return new NextResponse(JSON.stringify({ message: "Decryption failed." }), {
       headers: { "Content-Type": "application/json" },
