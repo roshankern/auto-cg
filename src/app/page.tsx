@@ -162,11 +162,12 @@ export default function Home() {
 
         <p className="mt-4 text-gray-500 text-sm">
           <strong>Attention</strong>: You should always be cautious when sharing
-          login details. We use SOTA encryption to keep login info secure and
+          login details. We use <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" className="text-blue-500 underline">AES256 encryption</a> to keep login info secure and
           never record usernames or passwords. CampusGroups is also the only
-          service (to our knowledge) that does not require Duo authentication
+          service (to our knowledge) that does not require Duo Security
           for a new login.
         </p>
+
       </form>
     </div>
   );
