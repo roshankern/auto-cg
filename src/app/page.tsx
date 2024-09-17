@@ -84,7 +84,7 @@ export default function Home() {
         className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-xl"
       >
         <h1 className="text-2xl font-bold text-gray-700 mb-6 text-center">
-          Auto Register for Campus Groups Event (CWRU)
+          Auto Register for CampusGroups Event (CWRU)
         </h1>
 
         <div className="mb-4">
@@ -127,7 +127,7 @@ export default function Home() {
             className="block text-gray-700 text-sm font-bold mb-2"
             htmlFor="username"
           >
-            Username
+            CampusGroups Username
           </label>
           <input
             id="username"
@@ -144,7 +144,7 @@ export default function Home() {
             className="block text-gray-700 text-sm font-bold mb-2"
             htmlFor="password"
           >
-            Password
+            CampusGroups Password
           </label>
           <input
             id="password"
