@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const secretKey = process.env.NEXT_PUBLIC_PRIVATE_KEY;
+  const secretKey = process.env.PRIVATE_KEY;
 
   if (!secretKey) {
     return new NextResponse(
@@ -122,6 +122,8 @@ export async function POST(request: NextRequest) {
   try {
     username = decrypt(encryptedUsername, secretKey);
     password = decrypt(encryptedPassword, secretKey);
+    console.log(`Decrypted username: ${username}`);
+    console.log(`Decrypted password: ${password}`);
   } catch (error) {
     return new NextResponse(JSON.stringify({ message: "Decryption failed." }), {
       headers: { "Content-Type": "application/json" },

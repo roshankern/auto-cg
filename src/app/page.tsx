@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
-import CryptoJS from "crypto-js";
 
 export default function Home() {
   const [minDatetime, setMinDatetime] = useState("");
@@ -41,23 +40,10 @@ export default function Home() {
     console.log("Password:", password);
 
     // encrypt the username and password before api call
-
-    const secretKey: string = process.env.NEXT_PUBLIC_PRIVATE_KEY as string;
-
-    console.log("Encrypted username:", secretKey);
-
-    if (!secretKey) {
-      console.error("Secret key is undefined");
-    }
-
-    const encryptedUsername = CryptoJS.AES.encrypt(
+    const { encryptedUsername, encryptedPassword } = await encryptData(
       username,
-      secretKey
-    ).toString();
-    const encryptedPassword = CryptoJS.AES.encrypt(
-      password,
-      secretKey
-    ).toString();
+      password
+    );
 
     // Convert the datetime value to a Unix timestamp, subtracting 15 seconds
     const unixTimestamp = Math.floor(new Date(datetime).getTime() / 1000) - 15;
@@ -191,3 +177,30 @@ export default function Home() {
     </div>
   );
 }
+
+const encryptData = async (
+  username: string,
+  password: string
+): Promise<{ encryptedUsername: string; encryptedPassword: string }> => {
+  try {
+    const response = await fetch("/api/encrypt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }), // Send both username and password to be encrypted
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to encrypt the username and password");
+    }
+
+    // Parse the response to get the encrypted username and password
+    const data: { encryptedUsername: string; encryptedPassword: string } =
+      await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error encrypting username and password:", error);
+    throw error; // Rethrow the error to be handled in the next step
+  }
+};
