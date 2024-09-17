@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import CryptoJS from "crypto-js";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // Increase max function duration
@@ -36,7 +37,12 @@ async function getBrowser() {
   }
 }
 
-async function autoRegister(cg_login_url: string, cg_event_url: string, username: string, password: string) {
+async function autoRegister(
+  cg_login_url: string,
+  cg_event_url: string,
+  username: string,
+  password: string
+) {
   console.log("Attempting to auto-register...");
 
   const browser = await getBrowser();
@@ -61,7 +67,7 @@ async function autoRegister(cg_login_url: string, cg_event_url: string, username
 
   console.log("CWRU Single Sign-On button clicked successfully.");
 
-  await page.waitForSelector('#header__account-icon', { timeout: 20000 });
+  await page.waitForSelector("#header__account-icon", { timeout: 20000 });
 
   // Navigate to the event URL
   await page.goto(cg_event_url);
@@ -73,40 +79,75 @@ async function autoRegister(cg_login_url: string, cg_event_url: string, username
   console.log("Register button clicked successfully.");
 
   // Wait for the check icon to appear
-  await page.waitForSelector('div.check-icon', { timeout: 20000 });
+  await page.waitForSelector("div.check-icon", { timeout: 20000 });
 
   console.log("Registration successful!");
   await browser.close();
 }
 
+function decrypt(data: string, secretKey: string) {
+  return CryptoJS.AES.decrypt(data, secretKey).toString(CryptoJS.enc.Utf8);
+}
+
 export async function POST(request: NextRequest) {
   const cg_login_url = "https://www.campusgroups.com/shibboleth/login?idp=cwru";
-  const { eventLink, encryptedUsername, encryptedPassword } = await request.json();
+  const { eventLink, encryptedUsername, encryptedPassword } =
+    await request.json();
 
   if (!eventLink || !encryptedUsername || !encryptedPassword) {
-    return new NextResponse(JSON.stringify({ message: "Missing required fields" }), {
+    return new NextResponse(
+      JSON.stringify({ message: "Missing required fields" }),
+      {
+        headers: { "Content-Type": "application/json" },
+        status: 400,
+      }
+    );
+  }
+
+  const secretKey = process.env.NEXT_PUBLIC_PRIVATE_KEY;
+
+  if (!secretKey) {
+    return new NextResponse(
+      JSON.stringify({ message: "Encryption key is missing." }),
+      {
+        headers: { "Content-Type": "application/json" },
+        status: 500,
+      }
+    );
+  }
+
+  // Decrypt the username and password
+  let username;
+  let password;
+  try {
+    username = decrypt(encryptedUsername, secretKey);
+    password = decrypt(encryptedPassword, secretKey);
+  } catch (error) {
+    return new NextResponse(JSON.stringify({ message: "Decryption failed." }), {
       headers: { "Content-Type": "application/json" },
-      status: 400,
+      status: 500,
     });
   }
 
-  // decrypt the username and password
-  const username = process.env.USERNAME;
-  const password = process.env.PASSWORD;
-
   if (!username || !password) {
-    return new NextResponse(JSON.stringify({ message: "Missing required fields" }), {
-      headers: { "Content-Type": "application/json" },
-      status: 400,
-    });
+    return new NextResponse(
+      JSON.stringify({ message: "Missing required fields" }),
+      {
+        headers: { "Content-Type": "application/json" },
+        status: 400,
+      }
+    );
   }
 
   try {
     await autoRegister(cg_login_url, eventLink, username, password);
 
-    return new NextResponse(JSON.stringify({ message: "Registration successful!" }), {
-      headers: { "Content-Type": "application/json" },
-    });
+    return new NextResponse(
+      JSON.stringify({ message: "Registration successful!" }),
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (error) {
     return new NextResponse(JSON.stringify({ message: `Error: ${error}` }), {
       headers: { "Content-Type": "application/json" },
