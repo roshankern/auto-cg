@@ -56,6 +56,12 @@ export default function Home() {
         },
       });
 
+      if (response.status === 200) {
+        window.alert("Auto registration information recorded. Let's hope it works!");
+        (e.target as HTMLFormElement).reset(); // Clear the form
+      }
+      console.log(response.data.message);
+
       console.log(response.data.message);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -104,7 +110,7 @@ export default function Home() {
             className="block text-gray-700 text-sm font-bold mb-2"
             htmlFor="datetime"
           >
-            Auto Registration Date + Local Time
+            Date + Local Time to Auto Register
           </label>
           <input
             id="datetime"

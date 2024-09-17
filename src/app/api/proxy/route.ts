@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
             params: {
                 _token: zeploToken,
                 _delay_until: unixTimestamp,
+                _retry: 2, // allow up to 2 retries for failed attempts
             },
             data: {
                 eventLink,
