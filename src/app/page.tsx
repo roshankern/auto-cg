@@ -1,45 +1,53 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function Home() {
-  const [minDatetime, setMinDatetime] = useState('');
+  const [minDatetime, setMinDatetime] = useState("");
 
   useEffect(() => {
     // Get current time, add 5 minutes, and format it as YYYY-MM-DDTHH:MM
     const now = new Date();
     now.setMinutes(now.getMinutes());
-    const formatted = now.toLocaleString('sv-SE', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(' ', 'T');
+    const formatted = now
+      .toLocaleString("sv-SE", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+      .replace(" ", "T");
     setMinDatetime(formatted);
   }, []);
 
   const [loading, setLoading] = useState(false);
-  const defaultEventLink = 'https://community.case.edu/web/rsvp_boot?id=2258484';
+  const defaultEventLink =
+    "https://community.case.edu/web/rsvp_boot?id=2258484";
 
   const handleAutoRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     const formData = new FormData(e.target as HTMLFormElement);
-    const eventLink = formData.get('eventLink') as string;
-    const datetime = formData.get('datetime') as string;
-    const username = formData.get('username') as string;
-    const password = formData.get('password') as string;
+    const eventLink = formData.get("eventLink") as string;
+    const datetime = formData.get("datetime") as string;
+    const username = formData.get("username") as string;
+    const password = formData.get("password") as string;
 
-    // encrypt the username and password before api call
-    const encryptedUsername = "testEncryptedUsername";
-    const encryptedPassword = "testEncryptedPassword";
-
-    // Convert the datetime value to a Unix timestamp, subtracting 15 seconds
+    const { encryptedUsername, encryptedPassword } = await encryptData(
+      username,
+      password
+    );
     const unixTimestamp = Math.floor(new Date(datetime).getTime() / 1000) - 15;
 
-    console.log('Attempting to auto-register...');
+    console.log("Attempting to auto-register...");
 
     try {
       const response = await axios({
-        method: 'POST',
-        url: '/api/proxy',
+        method: "POST",
+        url: "/api/proxy",
         data: {
           eventLink,
           encryptedUsername,
@@ -51,9 +59,12 @@ export default function Home() {
       console.log(response.data.message);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error('Failed to auto-register:', error.response?.data || error.message);
+        console.error(
+          "Failed to auto-register:",
+          error.response?.data || error.message
+        );
       } else {
-        console.error('Error occurred:', error);
+        console.error("Error occurred:", error);
       }
     } finally {
       setLoading(false);
@@ -71,7 +82,10 @@ export default function Home() {
         </h1>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="eventLink">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="eventLink"
+          >
             Event Link
           </label>
           <input
@@ -86,7 +100,10 @@ export default function Home() {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="datetime">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="datetime"
+          >
             Auto Registration Date + Local Time
           </label>
           <input
@@ -100,7 +117,10 @@ export default function Home() {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="username"
+          >
             Username
           </label>
           <input
@@ -114,7 +134,10 @@ export default function Home() {
         </div>
 
         <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="password"
+          >
             Password
           </label>
           <input
@@ -133,15 +156,46 @@ export default function Home() {
             className="bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             disabled={loading}
           >
-            {loading ? 'Registering...' : 'Auto Register'}
+            {loading ? "Registering..." : "Auto Register"}
           </button>
         </div>
 
         <p className="mt-4 text-gray-500 text-sm">
-          <strong>Attention</strong>: You should always be cautious when sharing login details. We use SOTA encryption to keep login info secure and never record usernames or passwords. CampusGroups is also the only service (to our knowledge) that does not require Duo authentication for a new login.
+          <strong>Attention</strong>: You should always be cautious when sharing
+          login details. We use <a href="https://en.wikipedia.org/wiki/Advanced_Encryption_Standard" className="text-blue-500 underline">AES256 encryption</a> to keep login info secure and
+          never record usernames or passwords. CampusGroups is also the only
+          service (to our knowledge) that does not require Duo Security
+          for a new login.
         </p>
 
       </form>
     </div>
   );
 }
+
+const encryptData = async (
+  username: string,
+  password: string
+): Promise<{ encryptedUsername: string; encryptedPassword: string }> => {
+  try {
+    const response = await fetch("/api/encrypt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }), // Send both username and password to be encrypted
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to encrypt the username and password");
+    }
+
+    // Parse the response to get the encrypted username and password
+    const data: { encryptedUsername: string; encryptedPassword: string } =
+      await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error encrypting username and password:", error);
+    throw error; // Rethrow the error to be handled in the next step
+  }
+};
