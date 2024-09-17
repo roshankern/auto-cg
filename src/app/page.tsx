@@ -23,8 +23,6 @@ export default function Home() {
   }, []);
 
   const [loading, setLoading] = useState(false);
-  const defaultEventLink =
-    "https://community.case.edu/web/rsvp_boot?id=2258484";
 
   const handleAutoRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +96,6 @@ export default function Home() {
             id="eventLink"
             name="eventLink"
             type="text"
-            defaultValue={defaultEventLink}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             placeholder="Enter event link"
             required
